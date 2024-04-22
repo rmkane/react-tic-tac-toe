@@ -9,21 +9,19 @@ function Square({ index, value, onSquareClick }) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
-  function handleClick(i) {
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    onPlay(squares.toSpliced(i, 1, xIsNext ? "X" : "O"));
-  }
-
+function determineStatus(squares, xIsNext) {
   const winner = calculateWinner(squares);
-  let status;
-  if (winner) {
-    status = `Winner: ${winner}`;
-  } else {
-    status = `Next player: ${xIsNext ? "X" : "O"}`;
-  }
+  if (winner) return `Winner: ${winner}`;
+  return `Next player: ${xIsNext ? "X" : "O"}`;
+}
+
+function Board({ xIsNext, squares, onPlay }) {
+  const handleClick = (i) => {
+    if (calculateWinner(squares) || squares[i]) return;
+    onPlay(squares.toSpliced(i, 1, xIsNext ? "X" : "O"));
+  };
+
+  let status = determineStatus(squares, xIsNext);
 
   return (
     <>
