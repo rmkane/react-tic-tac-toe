@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 
-function Square({ value, onSquareClick }) {
+function Square({ index, value, onSquareClick }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className="square" onClick={() => onSquareClick(index)}>
       {value}
     </button>
   );
@@ -14,10 +14,7 @@ function Board({ xIsNext, squares, onPlay }) {
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
-    const nextSquares = [...squares];
-    nextSquares[i] = xIsNext ? "X" : "O";
-
-    onPlay(nextSquares);
+    onPlay(squares.toSpliced(i, 1, xIsNext ? "X" : "O"));
   }
 
   const winner = calculateWinner(squares);
@@ -35,8 +32,9 @@ function Board({ xIsNext, squares, onPlay }) {
         {squares.map((value, index) => (
           <Square
             key={index}
+            index={index}
             value={value}
-            onSquareClick={() => handleClick(index)}
+            onSquareClick={handleClick}
           />
         ))}
       </div>
@@ -44,8 +42,14 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
+const range = (start, end, step = 1) =>
+  Array.from({ length: end - start }, (_, i) => start + i * step);
+
+const vector = (n) => new Array(n).fill(null);
+
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState([vector(9)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
