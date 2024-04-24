@@ -28,8 +28,11 @@ const calculateWinner = (squares) => {
   return null;
 };
 
-const getHistoryText = (move) =>
-  move > 0 ? `Go to move #${move}` : "Go to game start";
+const getHistoryText = (move, currentMove) => {
+  if (move === 0) return "Go to game start";
+  if (move === currentMove) return `Viewing move #${move}`;
+  return `Go to move #${move}`;
+};
 
 const Square = ({ index, value, onSquareClick }) => {
   return (
@@ -46,7 +49,7 @@ const Board = ({ xIsNext, squares, onPlay }) => {
   };
 
   return (
-    <>
+    <div className="game-board">
       <div className="status">{determineStatus(squares, xIsNext)}</div>
       <div className="board">
         {squares.map((value, index) => (
@@ -58,11 +61,36 @@ const Board = ({ xIsNext, squares, onPlay }) => {
           />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 
-export default function Game() {
+const HistoryEntry = ({ move, currentMove, onClick }) => {
+  if (move === currentMove) {
+    return getHistoryText(move, currentMove);
+  }
+  return <button onClick={onClick}>{getHistoryText(move)}</button>;
+};
+
+const History = ({ currentMove, history, setCurrentMove }) => {
+  return (
+    <div className="game-info">
+      <ol>
+        {history.map((_squares, move) => (
+          <li key={move}>
+            <HistoryEntry
+              move={move}
+              currentMove={currentMove}
+              onClick={() => setCurrentMove(move)}
+            />
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+};
+
+const Game = () => {
   const [history, setHistory] = useState([new Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
@@ -76,20 +104,14 @@ export default function Game() {
 
   return (
     <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={onPlay} />
-      </div>
-      <div className="game-info">
-        <ol>
-          {history.map((squares, move) => (
-            <li key={move}>
-              <button onClick={() => setCurrentMove(move)}>
-                {getHistoryText(move)}
-              </button>
-            </li>
-          ))}
-        </ol>
-      </div>
+      <Board xIsNext={xIsNext} squares={currentSquares} onPlay={onPlay} />
+      <History
+        history={history}
+        currentMove={currentMove}
+        setCurrentMove={setCurrentMove}
+      />
     </div>
   );
-}
+};
+
+export default Game;
