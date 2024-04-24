@@ -11,6 +11,7 @@
   margin: 0;
   padding: 0.2rem;
   border: thin solid grey;
+  user-select: none;
 }
 
 .square {
@@ -25,6 +26,10 @@
   font-weight: bold;
   height: 2rem;
   width: 2rem;
+}
+
+.square[data-active="true"] {
+  background: #ff0;
 }
 
 .status {

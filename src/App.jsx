@@ -15,28 +15,35 @@ const winningCombos = [
 const determineStatus = (squares, xIsNext) => {
   const winner = calculateWinner(squares);
   if (winner) return `Winner: ${winner}`;
+  if (squares.every((square) => square)) return "It's a draw!";
   return `Next player: ${xIsNext ? "X" : "O"}`;
 };
 
+const winningCombo = (squares) =>
+  winningCombos.find(
+    ([a, b, c]) =>
+      squares[a] && squares[a] === squares[b] && squares[a] === squares[c]
+  );
+
 const calculateWinner = (squares) => {
-  for (let i = 0; i < winningCombos.length; i++) {
-    const [a, b, c] = winningCombos[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
+  const combo = winningCombo(squares);
+  return combo ? squares[combo[0]] : null;
 };
 
 const getHistoryText = (move, currentMove) => {
+  if (move === 0 && move === currentMove) return "Game start";
   if (move === 0) return "Go to game start";
   if (move === currentMove) return `Viewing move #${move}`;
   return `Go to move #${move}`;
 };
 
-const Square = ({ index, value, onSquareClick }) => {
+const Square = ({ active, index, value, onSquareClick }) => {
   return (
-    <button className="square" onClick={() => onSquareClick(index)}>
+    <button
+      className="square"
+      data-active={active}
+      onClick={() => onSquareClick(index)}
+    >
       {value}
     </button>
   );
@@ -45,8 +52,14 @@ const Square = ({ index, value, onSquareClick }) => {
 const Board = ({ xIsNext, squares, onPlay }) => {
   const handleClick = (i) => {
     if (calculateWinner(squares) || squares[i]) return;
-    onPlay(squares.toSpliced(i, 1, xIsNext ? "X" : "O"));
+    const row = Math.floor(i / 3);
+    const col = i % 3;
+    const player = xIsNext ? "X" : "O";
+    console.log(`${player} clicked (${row}, ${col})`);
+    onPlay(squares.toSpliced(i, 1, player));
   };
+
+  const combo = winningCombo(squares);
 
   return (
     <div className="game-board">
@@ -55,6 +68,7 @@ const Board = ({ xIsNext, squares, onPlay }) => {
         {squares.map((value, index) => (
           <Square
             key={index}
+            active={combo && combo.includes(index)}
             index={index}
             value={value}
             onSquareClick={handleClick}
